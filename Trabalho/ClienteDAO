@@ -1,0 +1,22 @@
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+public class ClienteDAO {
+    public static void adicionarCliente(Cliente cliente) {
+        String sql = "INSERT INTO Clientes (nome, telefone, email, endereco) VALUES (?, ?, ?, ?)";
+        try (Connection conn = BancoDeDados.conectar();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, cliente.getNome());
+            pstmt.setString(2, cliente.getTelefone());
+            pstmt.setString(3, cliente.getEmail());
+            pstmt.setString(4, cliente.getEndereco());
+            
+            pstmt.executeUpdate();
+            System.out.println("Cliente adicionado com sucesso!");
+        } catch (SQLException e) {
+            System.out.println("Erro ao adicionar cliente: " + e.getMessage());
+        }
+    }
+}

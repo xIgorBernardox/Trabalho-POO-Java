@@ -1,0 +1,17 @@
+public class FuncionarioDAO {
+    public static void adicionarFuncionario(Funcionario funcionario) {
+        String sql = "INSERT INTO Funcionarios (nome, telefone, email) VALUES (?, ?, ?)";
+        try (Connection conn = BancoDeDados.conectar();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, funcionario.getNome());
+            pstmt.setString(2, funcionario.getTelefone());
+            pstmt.setString(3, funcionario.getEmail());
+            
+            pstmt.executeUpdate();
+            System.out.println("Funcionário adicionado com sucesso!");
+        } catch (SQLException e) {
+            System.out.println("Erro ao adicionar funcionário: " + e.getMessage());
+        }
+    }
+}

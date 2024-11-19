@@ -1,0 +1,128 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class BancoDeDados {
+    private static final String URL = "jdbc:sqlite:climatizacao.db";  
+
+    
+    public static void criarBancoDeDados() {
+        
+        try (Connection conn = conectar(); Statement stmt = conn.createStatement()) {
+            if (conn != null) {
+                // Criação das tabelas
+                criarTabelaClientes(stmt);
+                criarTabelaFuncionarios(stmt);
+                criarTabelaServicos(stmt);
+                criarTabelaHistoricoServicos(stmt);
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao criar o banco de dados: " + e.getMessage());
+        }
+    }
+
+    private static void criarTabelaClientes(Statement stmt) throws SQLException {
+        String sqlClientes = "CREATE TABLE IF NOT EXISTS Clientes ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + "nome TEXT NOT NULL, "
+                + "telefone TEXT, "
+                + "email TEXT, "
+                + "endereco TEXT)";
+        stmt.executeUpdate(sqlClientes);
+    }
+
+    private static void criarTabelaFuncionarios(Statement stmt) throws SQLException {
+        String sqlFuncionarios = "CREATE TABLE IF NOT EXISTS Funcionarios ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + "nome TEXT NOT NULL, "
+                + "telefone TEXT, "
+                + "email TEXT)";
+        stmt.executeUpdate(sqlFuncionarios);
+    }
+
+    private static void criarTabelaServicos(Statement stmt) throws SQLException {
+        String sqlServicos = "CREATE TABLE IF NOT EXISTS Servicos ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + "descricao TEXT NOT NULL, "
+                + "preco REAL NOT NULL)";
+        stmt.executeUpdate(sqlServicos);
+    }
+
+    private static void criarTabelaHistoricoServicos(Statement stmt) throws SQLException {
+        String sqlHistorico = "CREATE TABLE IF NOT EXISTS HistoricoServicos ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + "cliente_id INTEGER, "
+                + "funcionario_id INTEGER, "
+                + "servico_id INTEGER, "
+                + "data_servico TEXT, "
+                + "FOREIGN KEY(cliente_id) REFERENCES Clientes(id), "
+                + "FOREIGN KEY(funcionario_id) REFERENCES Funcionarios(id), "
+                + "FOREIGN KEY(servico_id) REFERENCES Servicos(id))";
+        stmt.executeUpdate(sqlHistorico);
+    }
+
+    // Método para conectar ao banco de dados
+    public static Connection conectar() throws SQLException {
+        return DriverManager.getConnection(URL);
+    }
+
+    // Método para realizar inserções (exemplo usando PreparedStatement)
+    public static void inserirCliente(String nome, String telefone, String email, String endereco) {
+        String sql = "INSERT INTO Clientes (nome, telefone, email, endereco) VALUES (?, ?, ?, ?)";
+        try (Connection conn = conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, nome);
+            pstmt.setString(2, telefone);
+            pstmt.setString(3, email);
+            pstmt.setString(4, endereco);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Erro ao inserir cliente: " + e.getMessage());
+        }
+    }
+
+    public static void inserirFuncionario(String nome, String telefone, String email) {
+        String sql = "INSERT INTO Funcionarios (nome, telefone, email) VALUES (?, ?, ?)";
+        try (Connection conn = conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, nome);
+            pstmt.setString(2, telefone);
+            pstmt.setString(3, email);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Erro ao inserir funcionário: " + e.getMessage());
+        }
+    }
+
+    public static void inserirServico(String descricao, double preco) {
+        String sql = "INSERT INTO Servicos (descricao, preco) VALUES (?, ?)";
+        try (Connection conn = conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, descricao);
+            pstmt.setDouble(2, preco);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Erro ao inserir serviço: " + e.getMessage());
+        }
+    }
+
+    public static void inserirHistoricoServico(int clienteId, int funcionarioId, int servicoId, String dataServico) {
+        String sql = "INSERT INTO HistoricoServicos (cliente_id, funcionario_id, servico_id, data_servico) VALUES (?, ?, ?, ?)";
+        try (Connection conn = conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, clienteId);
+            pstmt.setInt(2, funcionarioId);
+            pstmt.setInt(3, servicoId);
+            pstmt.setString(4, dataServico);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Erro ao inserir histórico de serviço: " + e.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        criarBancoDeDados();
+        inserirCliente("João Silva", "123456789", "joao@exemplo.com", "Rua A, 123");
+        inserirFuncionario("Carlos Souza", "987654321", "carlos@exemplo.com");
+        inserirServico("Limpeza de Ar-Condicionado", 150.00);
+        inserirHistoricoServico(1, 1, 1, "2024-11-16");
+    }
+}

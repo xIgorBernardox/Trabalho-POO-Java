@@ -1,0 +1,16 @@
+public class ServicoDAO {
+
+    public static void adicionarServico(Servico servico) {
+        String sql = "INSERT INTO servicos (descricao, preco) VALUES (?, ?)";
+
+        try (Connection conn = SQLiteConnection.connect(); 
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, servico.getDescricao());
+            stmt.setDouble(2, servico.getPreco());
+            stmt.executeUpdate();
+            System.out.println("Serviço adicionado com sucesso!");
+        } catch (SQLException e) {
+            System.out.println("Erro ao adicionar serviço: " + e.getMessage());
+        }
+    }
+}

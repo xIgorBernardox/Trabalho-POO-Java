@@ -1,0 +1,18 @@
+public class HistoricoServicoDAO {
+    public static void registrarServico(RegistroServico registro) {
+        String sql = "INSERT INTO HistoricoServicos (cliente_id, funcionario_id, servico_id, data_servico) VALUES (?, ?, ?, ?)";
+        try (Connection conn = BancoDeDados.conectar();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, registro.getCliente().getId());  
+            pstmt.setInt(2, registro.getFuncionario().getId());  
+            pstmt.setInt(3, registro.getServico().getId());  
+            pstmt.setString(4, registro.getDataServico());
+            
+            pstmt.executeUpdate();
+            System.out.println("Serviço registrado com sucesso!");
+        } catch (SQLException e) {
+            System.out.println("Erro ao registrar serviço: " + e.getMessage());
+        }
+    }
+}
